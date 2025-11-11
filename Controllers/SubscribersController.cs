@@ -28,5 +28,28 @@ namespace Subscribersystem_API.Controllers
 
             return Ok(subscriber);
         }
+        [HttpGet("{subscriptionNumber}/ad-info")]
+        public async Task<ActionResult<SubscriberAdInfoDto>> GetSubscriberAdInfo(string subscriptionNumber)
+        {
+            var subscriber = await _context.Subscribers
+                .FirstOrDefaultAsync(s => s.SubscriptionNumber == subscriptionNumber);
+
+            if (subscriber == null)
+                return NotFound(new { message = "Prenumerant hittades inte." });
+
+            var dto = new SubscriberAdInfoDto
+            {
+                SubscriptionNumber = subscriber.SubscriptionNumber,
+                FullName = $"{subscriber.FirstName} {subscriber.LastName}",
+                PhoneNumber = subscriber.PhoneNumber,
+                DeliveryAddress = subscriber.DeliveryAddress,
+                PostalCode = subscriber.PostalCode,
+                City = subscriber.City,
+                // Lägga in logik om betalstatus etc.
+                AllowedToAdvertise = true
+            };
+
+            return Ok(dto);
+        }
     }
 }

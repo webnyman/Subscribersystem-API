@@ -3,18 +3,31 @@ using Subscribersystem_API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services
+// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add DbContext
 builder.Services.AddDbContext<SubscriberContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SubscriberDb")));
 
+// CORS-policy för annonssystemet – justera URL:erna när du vet porten
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAdsClient", policy =>
+    {
+        policy.WithOrigins(
+                "https://localhost:7060", // MVC-klienten (exempel)
+                "http://localhost:5060"   // ev. http-variant
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+
 var app = builder.Build();
 
-// Configure pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -22,7 +35,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// OBS: lägg CORS före Authorization
+app.UseCors("AllowAdsClient");
+
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
+
