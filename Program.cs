@@ -17,8 +17,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAdsClient", policy =>
     {
         policy.WithOrigins(
-                "https://localhost:7060", // MVC-klienten (exempel)
-                "http://localhost:5060"   // ev. http-variant
+                "https://localhost:7016", // MVC-klienten (exempel)
+                "http://localhost:7016"   // ev. http-variant
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
