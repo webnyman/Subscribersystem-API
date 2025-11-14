@@ -51,5 +51,26 @@ namespace Subscribersystem_API.Controllers
 
             return Ok(dto);
         }
-    }
+        [HttpPut("{subscriptionNumber}/contact")]
+        public async Task<IActionResult> UpdateContact(
+        string subscriptionNumber,
+        [FromBody] SubscriberContactUpdateDto dto)
+            {
+                var subscriber = await _context.Subscribers
+                    .FirstOrDefaultAsync(s => s.SubscriptionNumber == subscriptionNumber);
+
+                if (subscriber == null)
+                    return NotFound(new { message = "Prenumerant hittades inte." });
+
+                // Uppdatera kontaktuppgifter
+                subscriber.PhoneNumber = dto.PhoneNumber;
+                subscriber.DeliveryAddress = dto.DeliveryAddress;
+                subscriber.PostalCode = dto.PostalCode;
+                subscriber.City = dto.City;
+
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+        }
 }
