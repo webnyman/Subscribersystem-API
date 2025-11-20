@@ -17,6 +17,13 @@ namespace Subscribersystem_API.Controllers
             _context = context;
         }
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Subscriber>>> GetAll()
+        {
+            var subs = await _context.Subscribers.ToListAsync();
+            return Ok(subs);
+        }
+
         // GET: api/subscribers/{subscriptionNumber}
         [HttpGet("{subscriptionNumber}")]
         public async Task<ActionResult<Subscriber>> GetSubscriber(string subscriptionNumber)
@@ -137,6 +144,64 @@ namespace Subscribersystem_API.Controllers
 
             return Ok(new { message = $"Import klar. Nya prenumeranter: {added}." });
         }
+        // POST: api/Subscribers
+        [HttpPost]
+        public async Task<ActionResult<Subscriber>> Create([FromBody] Subscriber subscriber)
+        {
+            if (string.IsNullOrWhiteSpace(subscriber.SubscriptionNumber))
+                return BadRequest(new { message = "Prenumerationsnummer krävs." });
+
+            var exists = await _context.Subscribers
+                .AnyAsync(s => s.SubscriptionNumber == subscriber.SubscriptionNumber);
+
+            if (exists)
+                return Conflict(new { message = "Prenumerant med detta nummer finns redan." });
+
+            _context.Subscribers.Add(subscriber);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetSubscriber),
+                new { subscriptionNumber = subscriber.SubscriptionNumber }, subscriber);
+        }
+
+        // PUT: api/Subscribers/{subscriptionNumber}
+        [HttpPut("{subscriptionNumber}")]
+        public async Task<IActionResult> Update(string subscriptionNumber, [FromBody] Subscriber updated)
+        {
+            var subscriber = await _context.Subscribers
+                .FirstOrDefaultAsync(s => s.SubscriptionNumber == subscriptionNumber);
+
+            if (subscriber == null)
+                return NotFound(new { message = "Prenumerant hittades inte." });
+
+            subscriber.PersonalNumber = updated.PersonalNumber;
+            subscriber.FirstName = updated.FirstName;
+            subscriber.LastName = updated.LastName;
+            subscriber.PhoneNumber = updated.PhoneNumber;
+            subscriber.DeliveryAddress = updated.DeliveryAddress;
+            subscriber.PostalCode = updated.PostalCode;
+            subscriber.City = updated.City;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // DELETE: api/Subscribers/{subscriptionNumber}
+        [HttpDelete("{subscriptionNumber}")]
+        public async Task<IActionResult> Delete(string subscriptionNumber)
+        {
+            var subscriber = await _context.Subscribers
+                .FirstOrDefaultAsync(s => s.SubscriptionNumber == subscriptionNumber);
+
+            if (subscriber == null)
+                return NotFound(new { message = "Prenumerant hittades inte." });
+
+            _context.Subscribers.Remove(subscriber);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
 
     }
 }
