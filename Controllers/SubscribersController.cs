@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Subscribersystem_API.Data;
 using Subscribersystem_API.Models;
+using System.Xml.Serialization;
 
 namespace Subscribersystem_API.Controllers
 {
@@ -72,5 +73,23 @@ namespace Subscribersystem_API.Controllers
 
                 return NoContent();
             }
+        [HttpGet("export/xml")]
+        public async Task<IActionResult> ExportToXml()
+        {
+            var subscribers = await _context.Subscribers.ToListAsync();
+
+            var list = new SubscriberXmlList
+            {
+                Items = subscribers.Select(s => s.ToXmlDto()).ToList()
+            };
+
+            var serializer = new XmlSerializer(typeof(SubscriberXmlList));
+
+            await using var ms = new MemoryStream();
+            serializer.Serialize(ms, list);
+            ms.Position = 0;
+
+            return File(ms.ToArray(), "application/xml", "subscribers.xml");
         }
+    }
 }
