@@ -53,7 +53,6 @@ namespace Subscribersystem_API.Controllers
                 DeliveryAddress = subscriber.DeliveryAddress,
                 PostalCode = subscriber.PostalCode,
                 City = subscriber.City,
-                // Lägga in logik om betalstatus etc.
                 AllowedToAdvertise = true
             };
 
@@ -132,7 +131,7 @@ namespace Subscribersystem_API.Controllers
                     .AnyAsync(s => s.SubscriptionNumber == dto.SubscriptionNumber);
 
                 if (exists)
-                    continue; // vi hoppar över befintliga (kan du beskriva i rapporten)
+                    continue;
 
                 var entity = dto.ToEntity();
                 _context.Subscribers.Add(entity);

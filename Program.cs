@@ -11,14 +11,14 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<SubscriberContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SubscriberDb")));
 
-// CORS-policy för annonssystemet – justera URL:erna när du vet porten
+// CORS-policy för annonssystemet
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAdsClient", policy =>
     {
         policy.WithOrigins(
-                "https://localhost:7016", // MVC-klienten (exempel)
-                "http://localhost:7016"   // ev. http-variant
+                "https://localhost:7016", 
+                "http://localhost:7016" 
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -36,7 +36,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// OBS: lägg CORS före Authorization
 app.UseCors("AllowAdsClient");
 
 app.UseAuthorization();
